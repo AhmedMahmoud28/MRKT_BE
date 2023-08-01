@@ -44,6 +44,10 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
     store = models.ManyToManyField(Store)
     
+    @property
+    def final_price(self):
+        return self.price * 100
+    
     def __str__(self):
         return f"{self.name}"    
     

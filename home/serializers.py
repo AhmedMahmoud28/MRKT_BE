@@ -22,15 +22,13 @@ class Brandserializer(serializers.ModelSerializer):
         fields = ['name', 'image']
 
 class Productserializer(serializers.ModelSerializer):
-    store= serializers.StringRelatedField(many=True) # return manytomany related field name(string)
-    category = ProductCategoryserializer(many=False)
-    price = serializers.SerializerMethodField()
+    # store= serializers.StringRelatedField(many=True) # return manytomany related field name(string)
+    # category = ProductCategoryserializer(many=False)
+    
     class Meta:
         model = models.Product
-        fields = ['category', 'name', 'image', 'price', 'brand', 'store']
-        
-    def get_price(self, obj):
-        return (obj.price * 100)
+        fields = ['name', 'image', 'final_price', 'brand']
+    
         
     def to_representation(self, instance): # to change representation of related fields
         represent = super(Productserializer, self).to_representation(instance)

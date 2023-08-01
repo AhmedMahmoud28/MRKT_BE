@@ -21,7 +21,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = getenv("key")
+SECRET_KEY = 'django-insecure-&i0(!*w11bi8ryb_n#o2v$a%p*h)o1ppx_i)sa52yxy=z2m+xp'
+# getenv("key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'django_filters',
     'users',
     'home',
+    'cart',
 ]
 
 REST_FRAMEWORK = {
