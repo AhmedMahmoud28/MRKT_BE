@@ -7,7 +7,8 @@ class CartAdmin(admin.ModelAdmin):
     list_filter = ("date",)  
 
 class CartItemAdmin(admin.ModelAdmin):
-    list_display = ("cart", "product", "quantity") 
+    list_display = ("id", "cart", "product", "quantity") 
+    list_filter = ("id",)  
 
 admin.site.register(models.Cart, CartAdmin)
 admin.site.register(models.CartItem, CartItemAdmin)
