@@ -19,8 +19,6 @@ class userserializer(serializers.ModelSerializer):
             name = validated_data['name'],
             address = validated_data['address'],
             password = validated_data['password'])
-        print("ahmed")
-        print(user)
         return user
     
     def update(self, instance, validated_data):

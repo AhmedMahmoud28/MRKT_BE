@@ -40,6 +40,7 @@ class Product(models.Model):
     name = models.CharField(max_length=50)
     image = models.ImageField(upload_to="images/product-images")
     price = models.PositiveIntegerField(default=0)
+    inventory = models.PositiveIntegerField(default=0)
     category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
     store = models.ManyToManyField(Store)

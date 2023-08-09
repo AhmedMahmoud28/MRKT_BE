@@ -21,15 +21,8 @@ class UserSignup(APIView):
         if serializer.is_valid():
             name = serializer.validated_data
             serializer.save()
-            return Response (name) 
+            return Response ("Account created successfully") 
         else:
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
         
-
-    
-# class Userlist(viewsets.ViewSet):
-#     def list(self, request):
-#         all_users = models.User.objects.all()
-#         data = serializers.userserializer(all_users, many=True).data
-#         return Response(data)

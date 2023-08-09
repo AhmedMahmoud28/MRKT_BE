@@ -20,8 +20,8 @@ class BrandAdmin(admin.ModelAdmin):
     list_filter = ("name",)  
     
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "image", "category", "brand") 
-    list_filter = ("id", "name", "category", "brand", "store")  
+    list_display = ("name", "image", "category", "brand", "inventory") 
+    list_filter = ("id", "name", "category", "brand", "store", "inventory")  
 
 admin.site.register(models.StoreCategory, StoreCategoryAdmin)
 admin.site.register(models.Store, StoreAdmin)
