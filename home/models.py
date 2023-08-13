@@ -1,4 +1,5 @@
 from django.db import models
+from users.models import User
 # Create your models here.
 
 class StoreCategory(models.Model): 
@@ -49,6 +50,26 @@ class Product(models.Model):
     def final_price(self):
         return self.price * 100
     
+    # @property
+    # def is_fav(self):
+    #     products = Product.objects.all()
+    #     for product in products:
+    #         Q = Wishlist.objects.values_list('product__id',flat=True)
+    #         if product.id in list(Q): # type: ignore
+    #             print(product.id) # type: ignore
+    #             print(list(Q))
+    #         return True    
+    #     return False 
+    
     def __str__(self):
         return f"{self.name}"    
+
+class Wishlist(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, default=None)
     
+    def __str__(self):
+        return f"{self.user} {self.product}"    
+    
+    class Meta:
+        unique_together = ('user', 'product',)
