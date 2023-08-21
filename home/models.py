@@ -2,6 +2,7 @@ from django.db import models
 from users.models import User
 # Create your models here.
 
+
 class StoreCategory(models.Model): 
     name = models.CharField(max_length=50)
     image = models.ImageField(upload_to="images/storecategory-images")
@@ -12,6 +13,7 @@ class StoreCategory(models.Model):
     class Meta:
         verbose_name_plural = "Store Categories"
 
+
 class Store(models.Model):
     name = models.CharField(max_length=50)
     image = models.ImageField(upload_to="images/store-images")
@@ -19,6 +21,7 @@ class Store(models.Model):
     
     def __str__(self):
         return f"{self.name}"
+    
         
 class ProductCategory(models.Model): 
     name = models.CharField(max_length=50)
@@ -30,12 +33,14 @@ class ProductCategory(models.Model):
     class Meta:
         verbose_name_plural = "Product Categories"
 
+
 class Brand(models.Model): 
     name = models.CharField(max_length=50)
     image = models.ImageField(upload_to="images/brand-images")
     
     def __str__(self):
         return f"{self.name}"
+
 
 class Product(models.Model): 
     name = models.CharField(max_length=50)
@@ -50,26 +55,16 @@ class Product(models.Model):
     def final_price(self):
         return self.price * 100
     
-    # @property
-    # def is_fav(self):
-    #     products = Product.objects.all()
-    #     for product in products:
-    #         Q = Wishlist.objects.values_list('product__id',flat=True)
-    #         if product.id in list(Q): # type: ignore
-    #             print(product.id) # type: ignore
-    #             print(list(Q))
-    #         return True    
-    #     return False 
-    
     def __str__(self):
         return f"{self.name}"    
+
 
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, default=None)
     
     def __str__(self):
-        return f"{self.user} {self.product}"    
+        return f"{self.user} {self.product_id}"  # type: ignore
     
     class Meta:
         unique_together = ('user', 'product',)

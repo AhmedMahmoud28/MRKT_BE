@@ -4,25 +4,12 @@ from cart.serializers import SimpleProductSerializer
 from django.db import transaction
 from django.db.models.query import QuerySet
 
-class StoreCategoryserializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.StoreCategory
-        fields = ['name', 'image']
 
 class Storeserializer(serializers.ModelSerializer):
     class Meta:
         model = models.Store
         fields = ['name', 'image']
 
-class ProductCategoryserializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.ProductCategory
-        fields = ['name', 'image']
-
-class Brandserializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Brand
-        fields = ['name', 'image']
 
 class Productserializer(serializers.ModelSerializer):
     is_fav = serializers.SerializerMethodField(method_name='fav')
@@ -37,10 +24,14 @@ class Productserializer(serializers.ModelSerializer):
         return represent
         
     def fav(self, obj):
-        user = self.context['user_id'] 
-        Q = models.Wishlist.objects.filter(user=user).values_list('product', flat=True)
+        Q = self.context['query_set'] 
+        # print(Q)
         return obj.id in Q
        
+    # def fav(self, obj):
+    #     user = self.context['user_id'] 
+    #     return models.Wishlist.objects.filter(user=user, product_id=obj.id).exists()
+    #     return obj.id in Q
 
 class Wishlistserializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField(method_name='user_of_list')
@@ -48,7 +39,7 @@ class Wishlistserializer(serializers.ModelSerializer):
     
     class Meta:
         model = models.Wishlist
-        fields = ['id', 'user', 'product']
+        fields = "__all__"
         
     def user_of_list(self, obj):
         return self.context['user_id']
@@ -64,11 +55,11 @@ class AddtoWishlistserializer(serializers.ModelSerializer):
         with transaction.atomic(): 
             user_id = self.context['user_id']
             product_added = self.validated_data["product"] # type: ignore
-            self.instance = models.Wishlist.objects.filter(user_id=user_id, product__id=product_added.id).first()
+            self.instance = models.Wishlist.objects.select_related('product').filter(user_id=user_id, product__id=product_added.id).first()
     
             if self.instance is None:
-                self.instance = models.Wishlist.objects.create(user_id=user_id, product=product_added)              
+                return models.Wishlist.objects.select_related('product').create(user_id=user_id, product=product_added)              
                 
             elif self.instance is not None:
-                self.instance = models.Wishlist.objects.filter(user_id=user_id, product__id=product_added.id).delete()
-        return self.instance
+                return self.instance.delete()
+                

@@ -36,7 +36,7 @@ class productview(ListAPIView):
     authentication_classes = (TokenAuthentication,)
     permission_classes = [IsAuthenticated,]
     serializer_class = serializers.Productserializer
-    queryset = models.Product.objects.all()
+    queryset = models.Product.objects.select_related('brand').all()
     permission_classes = [IsAuthenticated,]
     filter_backends = [rest_framework.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     # filter_class = productfilter
@@ -50,8 +50,8 @@ class productview(ListAPIView):
     ### Specifying a default ordering
     
     def get_serializer_context(self):
-        return {'user_id': self.request.user}  # type: ignore
-
+        # return {'user_id': self.request.user}  # type: ignore
+        return {'query_set': models.Wishlist.objects.filter(user=self.request.user).values_list('product', flat=True)}  
     
 
 class WishlistView(ModelViewSet):
@@ -69,4 +69,4 @@ class WishlistView(ModelViewSet):
     
     def get_queryset(self):
         user = self.request.user
-        return models.Wishlist.objects.filter(user=user )
+        return models.Wishlist.objects.select_related('product').filter(user=user )

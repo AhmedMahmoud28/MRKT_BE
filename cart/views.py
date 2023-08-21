@@ -14,28 +14,26 @@ from cart import models
 from cart import permissions
 
 
-class CartViewSet(CreateModelMixin, GenericViewSet, RetrieveModelMixin, DestroyModelMixin, ListModelMixin):
+class CartViewSet(GenericViewSet, RetrieveModelMixin, DestroyModelMixin, ListModelMixin):
     authentication_classes = (TokenAuthentication,)
     permission_classes = (permissions.ControllingCart, IsAuthenticated,)
     serializer_class = serializers.CartSerializer
     
     def get_queryset(self):
-        return models.Cart.objects.filter(user_id=self.request.user.id)  # type: ignore
+        return models.Cart.objects.prefetch_related('items').filter(user_id=self.request.user.id)  # type: ignore
     
-    def get_serializer_context(self):
-        return {'user': self.request.user}
-    
-    def create(self, request, *args, **kwargs):
-        cart = models.Cart.objects.filter(user=self.request.user).first()
-        if cart:
-            return Response({
-                "Message": "User's Cart Already Exists"
-            }, status=400)
-        
-        return super().create(request, args, kwargs) 
-        
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+        
+    # def create(self, request, *args, **kwargs):
+    #     cart = models.Cart.objects.filter(user=self.request.user).first()
+    #     if cart:
+    #         return Response({
+    #             "Message": "User's Cart Already Exists"
+    #         }, status=400)
+        
+    #     return super().create(request, args, kwargs) 
+        
 
 
 class CartItemViewSet(ModelViewSet):

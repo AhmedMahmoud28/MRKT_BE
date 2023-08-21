@@ -1,6 +1,20 @@
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import User
 from users import models
+from cart.models import Cart
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Add custom claims
+        token['name'] = user.name
+        
+        return token
+
 
 class userserializer(serializers.ModelSerializer):
     class Meta:
@@ -19,6 +33,7 @@ class userserializer(serializers.ModelSerializer):
             name = validated_data['name'],
             address = validated_data['address'],
             password = validated_data['password'])
+        Cart.objects.create(user= user)
         return user
     
     def update(self, instance, validated_data):
