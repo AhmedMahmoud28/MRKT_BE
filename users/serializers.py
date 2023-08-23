@@ -16,7 +16,21 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 
-class userserializer(serializers.ModelSerializer):
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Address
+        fields = ['address',]
+
+
+class SimpleUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.User
+        fields = ['id','name']
+
+
+class UserSerializer(serializers.ModelSerializer):
+    address = serializers.CharField(required=True,max_length=50)
+    
     class Meta:
         model = models.User
         fields = ['email', 'name', 'password', 'address']
@@ -32,7 +46,8 @@ class userserializer(serializers.ModelSerializer):
             email = validated_data['email'],
             name = validated_data['name'],
             address = validated_data['address'],
-            password = validated_data['password'])
+            password = validated_data['password'])     
+        models.Address.objects.create(user= user,address = user.address)
         Cart.objects.create(user= user)
         return user
     

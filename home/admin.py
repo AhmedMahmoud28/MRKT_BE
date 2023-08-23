@@ -26,6 +26,10 @@ class ProductAdmin(admin.ModelAdmin):
 class WishlistAdmin(admin.ModelAdmin):
     list_display = ("user",) 
     list_filter = ("user", "product",)  
+    
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ("user",) 
+    list_filter = ("user", "product",)  
 
 admin.site.register(models.StoreCategory, StoreCategoryAdmin)
 admin.site.register(models.Store, StoreAdmin)
@@ -33,3 +37,5 @@ admin.site.register(models.ProductCategory, ProductCategoryAdmin)
 admin.site.register(models.Brand, BrandAdmin)
 admin.site.register(models.Product, ProductAdmin)
 admin.site.register(models.Wishlist, WishlistAdmin)
+admin.site.register(models.Review, ReviewAdmin)
+

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'users',
     'home',
     'cart',
+    'dashboard',
     
     'silk',
 ]
@@ -63,8 +64,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    # 'DEFAULT_PAGINATION_CLASS': 'apps.core.pagination.StandardResultsSetPagination',
-    'PAGE_SIZE': 500
+    'PAGE_SIZE': 100
 
 }
 

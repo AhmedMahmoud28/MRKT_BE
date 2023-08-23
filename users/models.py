@@ -23,14 +23,12 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
         
-            
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=254, unique=True)
     name = models.CharField(max_length=50)
-    address = models.CharField(max_length=50)
     is_staff = models.BooleanField(default=False)
-    # address = models.ForeignKey("Address", on_delete=models.CASCADE)
+    date = models.DateTimeField(auto_now_add=True)
     
     objects = UserManager()
 
@@ -40,6 +38,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return f"{self.name} {self.email}"
     
+class Address(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    address = models.CharField(max_length=50, default=None)
+    
+    def __str__(self):
+        return f"{self.user} {self.address}"
 
 
 

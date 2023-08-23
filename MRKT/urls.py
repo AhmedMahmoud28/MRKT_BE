@@ -24,5 +24,6 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('home/', include('home.urls')),
     path('cart/', include('cart.urls')),
+    path('dashboard/', include('dashboard.urls')),
     path('silk/', include('silk.urls', namespace='silk')),
 ] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

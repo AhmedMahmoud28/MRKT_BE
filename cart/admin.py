@@ -11,11 +11,13 @@ class CartItemAdmin(admin.ModelAdmin):
     list_filter = ("id",)  
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ("id", "date", "pending_status", "owner") 
+    readonly_fields = ("total",)
+    list_display = ("id", "date", "pending_status", "owner", "total") 
     list_filter = ("owner", "pending_status")  
     
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ("order", "product", "quantity") 
+    readonly_fields = ("unit_price", "quantity")
+    list_display = ("order", "product", "quantity", "unit_price") 
     list_filter = ("order",)  
         
 admin.site.register(models.Cart, CartAdmin)

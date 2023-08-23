@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
 from users.models import User
 # Create your models here.
 
@@ -62,6 +63,19 @@ class Product(models.Model):
 class Wishlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, default=None)
+    
+    def __str__(self):
+        return f"{self.user} {self.product_id}"  # type: ignore
+    
+    class Meta:
+        unique_together = ('user', 'product',)
+
+
+class Review(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, default=None)
+    rate = models.PositiveIntegerField(validators=[MinValueValidator(1),MaxValueValidator(5)])
+    comment = models.TextField()
     
     def __str__(self):
         return f"{self.user} {self.product_id}"  # type: ignore
