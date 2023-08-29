@@ -2,7 +2,10 @@ from rest_framework import serializers
 from django.db import transaction
 from django.db.models import F
 from cart import models
+from users.models import Address
+from users.serializers import AddressSerializer
 from home.serializers import SimpleProductSerializer
+from django.shortcuts import get_object_or_404
 
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -74,22 +77,20 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
+    user_address = AddressSerializer()
     
     class Meta:
         model = models.Order
-        fields = ['id', 'date', 'pending_status', 'owner', 'items', 'total']
+        fields = ['id', 'date', 'pending_status', 'owner', 'items', 'total','user_address']
         
 
 class CreateOrderSerializer(serializers.Serializer):
-    cart_id = serializers.SerializerMethodField()
-    
-    def get_cart(self, obj):
-        return self.context['cart_id']
-    
-    def save(self, **kwargs):
+       
+    def create(self, validated_data):        
         with transaction.atomic(): 
             cart_id = self.context['cart_id']
             user_id = self.context['user_id']
+            address = get_object_or_404(Address, user_id=user_id, address_status=True)
             
             if not models.Cart.objects.filter(pk=cart_id).exists():
                 raise serializers.ValidationError("this is invalid cart id")
@@ -102,7 +103,7 @@ class CreateOrderSerializer(serializers.Serializer):
             
             cartitems = models.CartItem.objects.filter(cart_id = cart_id)
             total = sum(item.product.price * item.quantity for item in cartitems)
-            order  = models.Order.objects.create(owner_id = user_id, total= total)
+            order  = models.Order.objects.create(owner_id = user_id, total= total,user_address = address)
             orderitems = [models.OrderItem(order=order,
                                 product=item.product,
                                 quantity=item.quantity,

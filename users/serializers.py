@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.response import Response
 from .models import User
 from users import models
 from cart.models import Cart
@@ -19,7 +20,36 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Address
+        fields = ['id','address','address_status']
+
+
+class AddAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Address
         fields = ['address',]
+        
+    def create(self, validated_data):
+            user_id = self.context['user_id']
+            address = validated_data["address"]
+            return models.Address.objects.create(user_id=user_id, address = address)
+
+
+class UpdateAddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Address
+        fields = ['address_status',]
+      
+    def update(self, instance, validated_data):
+        user_id = self.context['user_id']
+        if instance.address_status == False:
+            current = models.Address.objects.select_related('user').get(user_id=user_id, address_status=True)
+            current.address_status = False
+            instance.address_status = True
+            current.save()
+        else:
+            raise serializers.ValidationError('Please Choose Another Default')
+
+        return super().update(instance, validated_data)
 
 
 class SimpleUserSerializer(serializers.ModelSerializer):
@@ -47,7 +77,7 @@ class UserSerializer(serializers.ModelSerializer):
             name = validated_data['name'],
             address = validated_data['address'],
             password = validated_data['password'])     
-        models.Address.objects.create(user= user,address = user.address)
+        models.Address.objects.create(user= user,address = user.address, address_status=True)
         Cart.objects.create(user= user)
         return user
     

@@ -1,7 +1,7 @@
 from django.db import models
 import uuid
 from home.models import Product
-from users.models import User
+from users.models import User, Address
 # Create your models here.
 
 
@@ -38,6 +38,7 @@ class Order(models.Model):
     pending_status = models.CharField(max_length=50, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     total = models.PositiveIntegerField(default=0)
+    user_address = models.ForeignKey(Address , on_delete=models.PROTECT, default=None)
     
     def __str__(self):
         return self.pending_status

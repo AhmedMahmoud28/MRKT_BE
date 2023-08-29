@@ -29,8 +29,13 @@ class Boardview(APIView):
         min_order = Order.objects.aggregate(Min("total")).get("total__min")
         max_order = Order.objects.aggregate(Max("total")).get("total__max")
         products = Product.objects.count()
+        
         min_product = Product.objects.aggregate(Min("price")).get("price__min")
+        min_product1 = Product.objects.min_price()
+        
         max_product = Product.objects.aggregate(Max("price")).get("price__max")
+        max_product1 = Product.objects.max_price()
+        
         
         list_of_orders = Order.objects.annotate(items_count=Count("items")).values('id', 'items_count').order_by('-items_count')
         list_of_products = OrderItem.objects.annotate(Quantity=Sum("quantity")).values('product__name', 'Quantity').order_by('-Quantity')
@@ -44,8 +49,13 @@ class Boardview(APIView):
                          "Min_Total_for_Order":min_order,
                          "Max_Total_for_Order":max_order,
                          "Total_Products":products,
+
                          "Min_Price_for_Product":min_product,
+                         "Min1_Price_for_Product":min_product1,
+                         
                          "Max_Price_for_Product":max_product,
+                         "Max1_Price_for_Product":max_product1,
+
                          "Orders_List":list_of_orders,
                          "Products_List":list_of_products,
                          })

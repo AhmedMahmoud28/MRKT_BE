@@ -1,7 +1,27 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models import Avg, Min, Max,Sum, Count
 from users.models import User
 # Create your models here.
+
+
+class CustomQuerySet(models.QuerySet):
+    def min(self):
+        return self.aggregate(Min("price")).get("price__min")
+
+    def max(self):
+        return self.aggregate(Max("price")).get("price__max")
+
+
+class ProductManager(models.Manager):
+    def get_queryset(self):
+        return CustomQuerySet(self.model, using=self._db)
+
+    def min_price(self):
+        return self.get_queryset().min()
+
+    def max_price(self):
+        return self.get_queryset().max()
 
 
 class StoreCategory(models.Model): 
@@ -52,6 +72,7 @@ class Product(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
     store = models.ManyToManyField(Store)
     
+    objects = ProductManager()
     @property
     def final_price(self):
         return self.price * 100
