@@ -1,14 +1,14 @@
 from django.contrib import admin
 from home import models
+from modeltranslation.admin import TranslationAdmin
 # Register your models here.
 
-class StoreCategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "image") 
+class StoreCategoryAdmin(TranslationAdmin):
+    list_display = ("name", "name_ar", "image") 
     list_filter = ("name",)  
     
-
-class StoreAdmin(admin.ModelAdmin):
-    list_display = ("name", "image", "category") 
+class StoreAdmin(TranslationAdmin):
+    list_display = ("name", "name_ar", "image", "category") 
     list_filter = ("name","category")  
     
 class ProductCategoryAdmin(admin.ModelAdmin):

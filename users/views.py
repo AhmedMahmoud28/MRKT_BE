@@ -8,16 +8,19 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from users import serializers
 from users import models
 
 
-class UserLoginView(ObtainAuthToken):
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+# class UserLoginView(ObtainAuthToken):
+#     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
     
 
 class UserSignupView(APIView):
     serializer_class = serializers.UserSerializer
+    permission_classes = ()
+    
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
@@ -28,8 +31,9 @@ class UserSignupView(APIView):
             return Response(serializer.errors,
                             status=status.HTTP_400_BAD_REQUEST)
             
+            
 class AddressView(ModelViewSet):
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
     pagination_class = None
     

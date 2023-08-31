@@ -6,13 +6,14 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, ListModelMixin
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from cart import serializers
 from cart import models
 from cart import permissions
 
 
 class CartViewSet(GenericViewSet, RetrieveModelMixin, DestroyModelMixin, ListModelMixin):
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (permissions.ControllingCart, IsAuthenticated,)
     serializer_class = serializers.CartSerializer
     pagination_class = None
@@ -28,7 +29,7 @@ class CartViewSet(GenericViewSet, RetrieveModelMixin, DestroyModelMixin, ListMod
        
    
 class CartItemViewSet(ModelViewSet):
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (permissions.ControllingCartItem, IsAuthenticated)
     pagination_class = None
 
@@ -49,7 +50,7 @@ class CartItemViewSet(ModelViewSet):
 
    
 class OrderViewSet(ModelViewSet):
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
     pagination_class = None
     

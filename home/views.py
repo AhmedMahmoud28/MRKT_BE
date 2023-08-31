@@ -8,22 +8,22 @@ from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyM
 from rest_framework.generics import ListAPIView
 from django_filters import rest_framework
 from django.db.models import Avg, Min, Max,Sum, Count
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from home import serializers
 from home import models
 
 
 class StoreView(ListAPIView):
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = [IsAuthenticated,]
     filter_backends = [rest_framework.DjangoFilterBackend]
     filterset_fields = ['category']
     serializer_class = serializers.StoreSerializer
     queryset = models.Store.objects.all()
-    
-    
+        
+            
 class ProductView(GenericViewSet,ListModelMixin,RetrieveModelMixin,):
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = [IsAuthenticated,]
     queryset = models.Product.objects.select_related('brand').all()
     
@@ -31,7 +31,7 @@ class ProductView(GenericViewSet,ListModelMixin,RetrieveModelMixin,):
     filterset_fields = ['category','brand','store']
     search_fields = ['^name']
     ordering_fields = ['name', 'price'] 
-    ordering = ['name'] 
+    ordering = ['id'] 
         
     def get_serializer_class(self):
         if self.action == 'retrieve':
@@ -46,7 +46,7 @@ class ProductView(GenericViewSet,ListModelMixin,RetrieveModelMixin,):
     
 
 class WishlistView(ModelViewSet):
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = [IsAuthenticated,]
     serializer_class = serializers.WishlistSerializer
     
@@ -61,7 +61,7 @@ class WishlistView(ModelViewSet):
     
     
 class ReviewView(ModelViewSet):
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = [IsAuthenticated,]
     serializer_class = serializers.Reviewserializer
     

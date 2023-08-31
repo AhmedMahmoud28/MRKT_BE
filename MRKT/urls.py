@@ -18,12 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
+from django.conf.urls.i18n import i18n_patterns
 
-urlpatterns = [
+main_patterns = i18n_patterns(
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
     path('home/', include('home.urls')),
     path('cart/', include('cart.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('silk/', include('silk.urls', namespace='silk')),
-] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+)
+
+urlpatterns = main_patterns + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

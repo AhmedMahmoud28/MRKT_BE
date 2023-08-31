@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # arg_value = options['arg_name']
-        for i in range(10000):
+        for i in range(1000):
             StoreCategory = models.StoreCategory.objects.create(name=fake.company_suffix())
             Store = models.Store.objects.create(name=fake.company(),category=StoreCategory)
             ProductCategory = models.ProductCategory.objects.create(name=fake.prefix())
