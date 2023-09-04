@@ -1,7 +1,8 @@
-from rest_framework import serializers
 from django.db import transaction
+from django.db.models import Avg, Count, Max, Min, Sum
 from django.db.models.query import QuerySet
-from django.db.models import Avg, Min, Max,Sum, Count
+from rest_framework import serializers
+
 from home import models
 from users.serializers import SimpleUserSerializer
 

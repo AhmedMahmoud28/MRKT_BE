@@ -1,7 +1,9 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.db.models import Avg, Min, Max,Sum, Count
+from django.db.models import Avg, Count, Max, Min, Sum
+
 from users.models import User
+
 # Create your models here.
 
 

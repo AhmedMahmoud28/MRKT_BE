@@ -1,15 +1,15 @@
-from rest_framework.response import Response
-from rest_framework import status, viewsets, filters 
+from rest_framework import filters, status, viewsets
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, ListModelMixin
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
+                                   ListModelMixin, RetrieveModelMixin)
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from cart import serializers
-from cart import models
-from cart import permissions
+
+from cart import models, permissions, serializers
 
 
 class CartViewSet(GenericViewSet, RetrieveModelMixin, DestroyModelMixin, ListModelMixin):

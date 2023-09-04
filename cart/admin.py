@@ -1,5 +1,7 @@
 from django.contrib import admin
+
 from cart import models
+
 # Register your models here.
 
 class CartAdmin(admin.ModelAdmin):

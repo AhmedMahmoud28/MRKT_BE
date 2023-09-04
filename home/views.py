@@ -1,16 +1,17 @@
-from rest_framework import status, viewsets, filters # for search filter
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.settings import api_settings
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, ListModelMixin
-from rest_framework.generics import ListAPIView
+from django.db.models import Avg, Count, Max, Min, Sum
 from django_filters import rest_framework
-from django.db.models import Avg, Min, Max,Sum, Count
+from rest_framework import filters, status, viewsets  # for search filter
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.generics import ListAPIView
+from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
+                                   ListModelMixin, RetrieveModelMixin)
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.settings import api_settings
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from home import serializers
-from home import models
+
+from home import models, serializers
 
 
 class StoreView(ListAPIView):

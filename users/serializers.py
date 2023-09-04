@@ -1,9 +1,11 @@
+from django.utils.translation import gettext
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.utils.translation import gettext
-from .models import User
-from users import models
+
 from cart.models import Cart
+from users import models
+
+from .models import User
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):

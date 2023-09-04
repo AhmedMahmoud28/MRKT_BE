@@ -6,3 +6,5 @@ mysqlclient==2.2.0
 psycopg2
 django-modeltranslation
 python-gettext==5.0
+drf-yasg
+isort

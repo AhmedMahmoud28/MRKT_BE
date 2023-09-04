@@ -1,7 +1,10 @@
-from django.db import models
 import uuid
+
+from django.db import models
+
 from home.models import Product
-from users.models import User, Address
+from users.models import Address, User
+
 # Create your models here.
 
 

@@ -1,7 +1,9 @@
-from django.urls import path, include
-from users import views, serializers
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView, TokenVerifyView)
+
+from users import serializers, views
 
 router = DefaultRouter()
 router.register("Addresses",views.AddressView, basename="Addresses")

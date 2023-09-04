@@ -1,6 +1,8 @@
 from django.contrib import admin
-from home import models
 from modeltranslation.admin import TranslationAdmin
+
+from home import models
+
 # Register your models here.
 
 class StoreCategoryAdmin(TranslationAdmin):

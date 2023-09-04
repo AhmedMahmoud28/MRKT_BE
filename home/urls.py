@@ -1,6 +1,7 @@
-from django.urls import path, include
-from home import views, serializers
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+
+from home import serializers, views
 
 router = DefaultRouter()
 router.register('products',views.ProductView, basename='products')

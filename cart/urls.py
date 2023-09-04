@@ -1,7 +1,8 @@
-from django.urls import path, include
-from cart import views
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 from rest_framework_nested import routers
+
+from cart import views
 
 router = DefaultRouter()
 router.register("carts",views.CartViewSet, basename="carts")

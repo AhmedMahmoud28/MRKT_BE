@@ -1,21 +1,22 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status, viewsets, filters # for search filter
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.settings import api_settings
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from rest_framework.generics import ListAPIView
-from django_filters import rest_framework
-from django.db.models import Avg, Min, Max,Sum, Count
 from datetime import datetime
+
+from django.db.models import Avg, Count, Max, Min, Sum
 from django.utils import timezone
+from django_filters import rest_framework
+from rest_framework import filters, status, viewsets  # for search filter
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
+from rest_framework.settings import api_settings
+from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from home.models import Product, Store, Brand, Review
 from cart.models import Order, OrderItem
+from home.models import Brand, Product, Review, Store
 from users.models import User
-
 
 
 class Boardview(APIView):
@@ -31,10 +32,10 @@ class Boardview(APIView):
         products = Product.objects.count()
         
         min_product = Product.objects.aggregate(Min("price")).get("price__min")
-        min_product1 = Product.objects.min_price()
+        min_product1 = Product.objects.min_price() # type: ignore
         
         max_product = Product.objects.aggregate(Max("price")).get("price__max")
-        max_product1 = Product.objects.max_price()
+        max_product1 = Product.objects.max_price() # type: ignore
         
         
         list_of_orders = Order.objects.annotate(items_count=Count("items")).values('id', 'items_count').order_by('-items_count')

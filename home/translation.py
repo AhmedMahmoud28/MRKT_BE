@@ -1,5 +1,7 @@
-from modeltranslation.translator import translator, TranslationOptions
+from modeltranslation.translator import TranslationOptions, translator
+
 from .models import Store, StoreCategory
+
 
 class StoreTranslationOptions(TranslationOptions):
     fields = ('name',)

@@ -1,11 +1,12 @@
-from rest_framework import serializers
 from django.db import transaction
 from django.db.models import F
+from django.shortcuts import get_object_or_404
+from rest_framework import serializers
+
 from cart import models
+from home.serializers import SimpleProductSerializer
 from users.models import Address
 from users.serializers import AddressSerializer
-from home.serializers import SimpleProductSerializer
-from django.shortcuts import get_object_or_404
 
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -84,6 +85,8 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = ['id', 'date', 'pending_status', 'owner', 'items', 'total','user_address']
         
 from django.utils.translation import gettext
+
+
 class CreateOrderSerializer(serializers.Serializer):
        
     def create(self, validated_data):        
