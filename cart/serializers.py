@@ -83,7 +83,7 @@ class OrderSerializer(serializers.ModelSerializer):
         model = models.Order
         fields = ['id', 'date', 'pending_status', 'owner', 'items', 'total','user_address']
         
-
+from django.utils.translation import gettext
 class CreateOrderSerializer(serializers.Serializer):
        
     def create(self, validated_data):        
@@ -99,7 +99,7 @@ class CreateOrderSerializer(serializers.Serializer):
                 raise serializers.ValidationError("you don't have permission for this action")
             
             elif not models.CartItem.objects.filter(cart_id=cart_id).exists():
-                raise serializers.ValidationError("sorry it's empty")
+                    raise serializers.ValidationError(gettext("cart_empty"))       
             
             cartitems = models.CartItem.objects.filter(cart_id = cart_id)
             total = sum(item.product.price * item.quantity for item in cartitems)

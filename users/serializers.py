@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework.response import Response
+from django.utils.translation import gettext
 from .models import User
 from users import models
 from cart.models import Cart
@@ -47,7 +47,7 @@ class UpdateAddressSerializer(serializers.ModelSerializer):
             instance.address_status = True
             current.save()
         else:
-            raise serializers.ValidationError('Please Choose Another Default')
+            raise serializers.ValidationError(gettext('Please Choose Another Default'))
 
         return super().update(instance, validated_data)
 
@@ -72,7 +72,7 @@ class UserSerializer(serializers.ModelSerializer):
         }
         
     def create(self, validated_data):
-        user = User.objects.create_user(
+        user = User.objects.create_user( # type: ignore
             email = validated_data['email'],
             name = validated_data['name'],
             address = validated_data['address'],
