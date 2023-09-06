@@ -139,3 +139,5 @@ static/
 
 virtualenv/
 uploads/*
+pyproject.toml
+.flake8

@@ -8,6 +8,17 @@
 	},
 	"emmet.includeLanguages": {
 		"django-html": "html"
-		},
-		"python.analysis.typeCheckingMode": "basic"
+	},
+	"python.analysis.typeCheckingMode": "basic",
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "ms-python.black-formatter",
+	"isort.args": [
+	  "--profile=black",
+	  "--skip=migrations"
+	],
+	"[python]": {
+	  	"editor.codeActionsOnSave": {
+			"source.organizeImports": true,
+		}
+	},
 }

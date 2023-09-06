@@ -5,9 +5,10 @@ from home import models
 
 fake = Faker()
 
+
 class Command(BaseCommand):
     # fake = Faker()
-    help = 'Create Fake Data for Models'
+    help = "Create Fake Data for Models"
 
     # def add_arguments(self, parser):
     #     parser.add_argument('arg_name', type=str, help='Description of the argument')
@@ -16,17 +17,18 @@ class Command(BaseCommand):
         # arg_value = options['arg_name']
         for i in range(1000):
             StoreCategory = models.StoreCategory.objects.create(name=fake.company_suffix())
-            Store = models.Store.objects.create(name=fake.company(),category=StoreCategory)
+            Store = models.Store.objects.create(name=fake.company(), category=StoreCategory)
             ProductCategory = models.ProductCategory.objects.create(name=fake.prefix())
             Brand = models.Brand.objects.create(name=fake.prefix())
-            product = models.Product.objects.create(name=fake.word(),
-                                                    price=fake.random_int(min=20, step=7),
-                                                    inventory=fake.random_int(min=20, step=7),
-                                                    category=ProductCategory,
-                                                    brand=Brand,)
+            product = models.Product.objects.create(
+                name=fake.word(),
+                price=fake.random_int(min=20, step=7),
+                inventory=fake.random_int(min=20, step=7),
+                category=ProductCategory,
+                brand=Brand,
+            )
             product.store.set([Store])
-            self.stdout.write(self.style.SUCCESS(f'Custom command executed'))
-        
+            self.stdout.write(self.style.SUCCESS(f"Custom command executed"))
 
 
 # # Person
@@ -103,4 +105,3 @@ class Command(BaseCommand):
 
 # # Localized Data (Some locales may require additional data packages)
 # localized_name = fake.first_name_female()  # For locales that have gender-specific names
-
