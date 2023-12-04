@@ -1,22 +1,10 @@
 from django.utils.translation import gettext
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from cart.models import Cart
 from users import models
 
 from .models import User
-
-
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-
-        # Add custom claims
-        token["name"] = user.name
-
-        return token
 
 
 class AddressSerializer(serializers.ModelSerializer):
