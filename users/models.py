@@ -6,7 +6,7 @@ from django.contrib.auth.models import (
 from django.db import models
 from django_lifecycle import LifecycleModel
 
-from .model_mixins import AddressMixin
+from users.model_mixins import AddressMixin, UserMixin
 
 # Create your models here.
 
@@ -31,7 +31,7 @@ class UserManager(BaseUserManager):
         return user
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin, LifecycleModel, UserMixin):
     email = models.EmailField(max_length=254, unique=True)
     name = models.CharField(max_length=50)
     is_staff = models.BooleanField(default=False)

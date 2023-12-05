@@ -1,30 +1,22 @@
-from rest_framework import status
+from rest_framework import mixins, status, viewsets
 from rest_framework.response import Response
-from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from users import models, serializers
+from users import models
+from users.serializers import AddressSerializer, UserSerializer
 
 # class UserLoginView(ObtainAuthToken):
 #     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
 
 
-class UserSignupView(APIView):
-    serializer_class = serializers.UserSerializer
+class UserSignupView(viewsets.GenericViewSet, mixins.CreateModelMixin):
+    serializer_class = UserSerializer
+    queryset = models.User.objects.all()
     permission_classes = ()
-
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.validated_data
-            serializer.save()
-            return Response("Account created successfully")
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddressView(ModelViewSet):
-    serializer_class = serializers.AddressSerializer
+    serializer_class = AddressSerializer
     pagination_class = None
 
     def get_queryset(self):
