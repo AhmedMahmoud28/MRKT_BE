@@ -1,6 +1,4 @@
-from django.utils.translation import gettext
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from cart.models import Cart
 from users import models
@@ -8,54 +6,11 @@ from users import models
 from .models import User
 
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
-
-        # Add custom claims
-        token["name"] = user.name
-
-        return token
-
-
 class AddressSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     class Meta:
         model = models.Address
-        fields = ["id", "address", "address_status"]
-
-
-class AddAddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Address
-        fields = [
-            "address",
-        ]
-
-    def create(self, validated_data):
-        user_id = self.context["user_id"]
-        address = validated_data["address"]
-        return models.Address.objects.create(user_id=user_id, address=address)
-
-
-class UpdateAddressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Address
-        fields = [
-            "address_status",
-        ]
-
-    def update(self, instance, validated_data):
-        user_id = self.context["user_id"]
-        if instance.address_status == False:
-            current = models.Address.objects.select_related("user").get(user_id=user_id, address_status=True)
-            current.address_status = False
-            instance.address_status = True
-            current.save()
-        else:
-            raise serializers.ValidationError(gettext("Please Choose Another Default"))
-
-        return super().update(instance, validated_data)
+        fields = "__all__"
 
 
 class SimpleUserSerializer(serializers.ModelSerializer):

@@ -1,9 +1,7 @@
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from users import models, serializers
 
@@ -26,8 +24,7 @@ class UserSignupView(APIView):
 
 
 class AddressView(ModelViewSet):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    serializer_class = serializers.AddressSerializer
     pagination_class = None
 
     def get_queryset(self):
@@ -35,16 +32,3 @@ class AddressView(ModelViewSet):
         return models.Address.objects.select_related(
             "user",
         ).filter(user=user)
-
-    def get_serializer_context(self):
-        context = {
-            "user_id": self.request.user.id,  # type: ignore
-        }
-        return context
-
-    def get_serializer_class(self):
-        if self.request.method == "PUT":
-            return serializers.UpdateAddressSerializer
-        if self.request.method == "POST":
-            return serializers.AddAddressSerializer
-        return serializers.AddressSerializer

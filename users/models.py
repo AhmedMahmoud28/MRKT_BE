@@ -4,6 +4,9 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 from django.db import models
+from django_lifecycle import LifecycleModel
+
+from .model_mixins import AddressMixin
 
 # Create your models here.
 
@@ -43,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f"{self.name} {self.email}"
 
 
-class Address(models.Model):
+class Address(LifecycleModel, AddressMixin):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     address = models.CharField(max_length=50, default=None)
     address_status = models.BooleanField(default=False)
