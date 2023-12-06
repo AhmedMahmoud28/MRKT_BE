@@ -9,6 +9,11 @@ class CustomQuerySet(models.QuerySet):
     def max(self):
         return self.aggregate(Max("price")).get("price__max")
 
+    def annotate_brand(self):
+        from django.db.models import F
+
+        return self.annotate(brand_name=F("brand__name"))
+
 
 class ProductManager(models.Manager):
     def get_queryset(self):

@@ -50,15 +50,11 @@ class ReviewDetailedSerializer(Reviewserializer):
 class ProductSerializer(serializers.ModelSerializer):
     is_fav = serializers.SerializerMethodField(method_name="fav")
     rate = serializers.SerializerMethodField(method_name="rate_avg")
+    brand_name = serializers.CharField(default=None)
 
     class Meta:
         model = models.Product
-        fields = ["name", "image", "price", "brand", "is_fav", "rate"]
-
-    def to_representation(self, instance):
-        represent = super().to_representation(instance)
-        represent["brand"] = instance.brand.name
-        return represent
+        fields = ["name", "image", "price", "brand_name", "is_fav", "rate"]
 
     def fav(self, obj):
         Q = self.context["query_set1"]

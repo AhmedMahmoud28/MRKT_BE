@@ -16,7 +16,8 @@ class ProductView(
     ListModelMixin,
     RetrieveModelMixin,
 ):
-    queryset = models.Product.objects.select_related("brand").all()
+    queryset = models.Product.objects.select_related("brand").annotate_brand()
+    serializer_class = serializers.ProductSerializer
     filterset_fields = ["category", "brand", "store"]
     search_fields = ["^name"]
     ordering_fields = ["name", "price"]
@@ -25,8 +26,7 @@ class ProductView(
     def get_serializer_class(self):
         if self.action == "retrieve":
             return serializers.ProductDetailsSerializer
-        else:
-            return serializers.ProductSerializer
+        return super().get_serializer_class()
 
     def get_serializer_context(self):
         return {
