@@ -24,29 +24,15 @@ class StoreSerializer(serializers.ModelSerializer):
 
 
 class WishlistSerializer(serializers.ModelSerializer):
-    product = SimpleProductSerializer(many=False)
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = models.Wishlist
-        fields = ["id", "product"]
+        fields = "__all__"
 
 
-class AddtoWishlistserializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Wishlist
-        fields = ["product"]
-
-    def save(self, **kwargs):
-        with transaction.atomic():
-            user_id = self.context["user_id"]
-            product_added = self.validated_data["product"]  # type: ignore
-            self.instance = (
-                models.Wishlist.objects.select_related("product").filter(user_id=user_id, product__id=product_added.id).first()
-            )
-            if self.instance is None:
-                return models.Wishlist.objects.select_related("product").create(user_id=user_id, product=product_added)
-            elif self.instance is not None:
-                return self.instance.delete()
+class WishlistDetailedSerializer(WishlistSerializer):
+    product = SimpleProductSerializer()
 
 
 class Reviewserializer(serializers.ModelSerializer):
@@ -69,7 +55,9 @@ class AddReviewSerializer(serializers.ModelSerializer):
             rate_added = self.validated_data["rate"]  # type: ignore
             comment_added = self.validated_data["comment"]  # type: ignore
             self.instance = (
-                models.Review.objects.select_related("product").filter(user_id=user_id, product__id=product_added.id).first()
+                models.Review.objects.select_related("product")
+                .filter(user_id=user_id, product__id=product_added.id)
+                .first()
             )
             if self.instance is None:
                 return models.Review.objects.select_related("product").create(

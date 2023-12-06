@@ -9,7 +9,9 @@ from users.models import User
 
 class StoreCategory(models.Model):
     name = models.CharField(max_length=50)
-    image = models.ImageField(upload_to="images/storecategory-images")
+    image = models.ImageField(
+        upload_to="images/storecategory-images", null=True, blank=True
+    )
 
     def __str__(self):
         return f"{self.name}"
@@ -20,7 +22,7 @@ class StoreCategory(models.Model):
 
 class Store(models.Model):
     name = models.CharField(max_length=50)
-    image = models.ImageField(upload_to="images/store-images")
+    image = models.ImageField(upload_to="images/store-images", null=True, blank=True)
     category = models.ForeignKey(StoreCategory, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -29,7 +31,9 @@ class Store(models.Model):
 
 class ProductCategory(models.Model):
     name = models.CharField(max_length=50)
-    image = models.ImageField(upload_to="images/productcategory-images")
+    image = models.ImageField(
+        upload_to="images/productcategory-images", null=True, blank=True
+    )
 
     def __str__(self):
         return f"{self.name}"
@@ -40,7 +44,7 @@ class ProductCategory(models.Model):
 
 class Brand(models.Model):
     name = models.CharField(max_length=50)
-    image = models.ImageField(upload_to="images/brand-images")
+    image = models.ImageField(upload_to="images/brand-images", null=True, blank=True)
 
     def __str__(self):
         return f"{self.name}"
@@ -48,7 +52,7 @@ class Brand(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=50)
-    image = models.ImageField(upload_to="images/product-images")
+    image = models.ImageField(upload_to="images/product-images", null=True, blank=True)
     price = models.PositiveIntegerField(default=0)
     inventory = models.PositiveIntegerField(default=0)
     category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
@@ -66,8 +70,8 @@ class Product(models.Model):
 
 
 class Wishlist(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, default=None)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, default=None)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.user} {self.product_id}"  # type: ignore
@@ -81,7 +85,7 @@ class Wishlist(models.Model):
 
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, default=None)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     rate = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(5)]
     )
