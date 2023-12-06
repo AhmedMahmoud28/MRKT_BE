@@ -62,12 +62,17 @@ class WishlistView(ModelViewSet):
 
 class ReviewView(ModelViewSet):
     serializer_class = serializers.Reviewserializer
+    queryset = models.Review.objects.all()
 
     def get_serializer_class(self):
-        if self.request.method == "POST":
-            return serializers.AddReviewSerializer
-        return serializers.Reviewserializer
+        if self.action == "retrieve":
+            return serializers.ReviewDetailedSerializer
+        return super().get_serializer_class()
 
     def get_queryset(self):
         user = self.request.user
-        return models.Review.objects.select_related("user", "product").filter(user=user)
+        if user.is_authenticated:
+            return models.Review.objects.select_related("user", "product").filter(
+                user=user
+            )
+        return super().get_queryset()
