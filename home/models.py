@@ -1,29 +1,10 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Max, Min
 
+from home.managers import ProductManager
 from users.models import User
 
 # Create your models here.
-
-
-class CustomQuerySet(models.QuerySet):
-    def min(self):
-        return self.aggregate(Min("price")).get("price__min")
-
-    def max(self):
-        return self.aggregate(Max("price")).get("price__max")
-
-
-class ProductManager(models.Manager):
-    def get_queryset(self):
-        return CustomQuerySet(self.model, using=self._db)
-
-    def min_price(self):
-        return self.get_queryset().min()
-
-    def max_price(self):
-        return self.get_queryset().max()
 
 
 class StoreCategory(models.Model):
@@ -101,7 +82,9 @@ class Wishlist(models.Model):
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, default=None)
-    rate = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    rate = models.PositiveIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)]
+    )
     comment = models.TextField()
 
     def __str__(self):

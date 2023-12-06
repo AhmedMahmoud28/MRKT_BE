@@ -4,11 +4,11 @@ from rest_framework.routers import DefaultRouter
 from home import views
 
 router = DefaultRouter()
+router.register("stores", views.StoreView, basename="stores")
 router.register("products", views.ProductView, basename="products")
 router.register("wishlist", views.WishlistView, basename="wishlist")
-router.register("Reviews", views.ReviewView, basename="Reviews")
+router.register("reviews", views.ReviewView, basename="reviews")
 
 urlpatterns = [
-    path("stores/", views.StoreView.as_view()),
     path("", include(router.urls)),
 ]
