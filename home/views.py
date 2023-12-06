@@ -1,6 +1,4 @@
 from django.db.models import Avg
-from django_filters import rest_framework
-from rest_framework import filters  # for search filter
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
@@ -8,7 +6,6 @@ from home import models, serializers
 
 
 class StoreView(GenericViewSet, ListModelMixin):
-    filter_backends = [rest_framework.DjangoFilterBackend]
     filterset_fields = ["category"]
     serializer_class = serializers.StoreSerializer
     queryset = models.Store.objects.all()
@@ -20,12 +17,6 @@ class ProductView(
     RetrieveModelMixin,
 ):
     queryset = models.Product.objects.select_related("brand").all()
-
-    filter_backends = [
-        rest_framework.DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter,
-    ]
     filterset_fields = ["category", "brand", "store"]
     search_fields = ["^name"]
     ordering_fields = ["name", "price"]
