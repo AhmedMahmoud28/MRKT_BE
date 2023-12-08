@@ -16,8 +16,9 @@ class ProductView(
     ListModelMixin,
     RetrieveModelMixin,
 ):
-    queryset = models.Product.objects.select_related("brand").annotate_brand()
+    queryset = models.Product.objects.all().annotate_brand().annotate_rate()
     serializer_class = serializers.ProductSerializer
+    permission_classes = ()
     filterset_fields = ["category", "brand", "store"]
     search_fields = ["^name"]
     ordering_fields = ["name", "price"]
@@ -28,20 +29,11 @@ class ProductView(
             return serializers.ProductDetailsSerializer
         return super().get_serializer_class()
 
-    def get_serializer_context(self):
-        return {
-            "query_set1": models.Wishlist.objects.filter(
-                user=self.request.user
-            ).values_list("product", flat=True),
-            "query_set2": {
-                item["product"]: item["avg"]
-                for item in (
-                    models.Review.objects.select_related("product")
-                    .values("product")
-                    .annotate(avg=Avg("rate"))
-                )
-            },
-        }
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated:
+            return self.queryset.annotate_is_wishlisted(self.request)
+        return super().get_queryset()
 
 
 class WishlistView(ModelViewSet):

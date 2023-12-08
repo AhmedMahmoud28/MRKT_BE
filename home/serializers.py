@@ -1,8 +1,6 @@
-from django.db import transaction
 from rest_framework import serializers
 
 from home import models
-from users.serializers import SimpleUserSerializer
 
 
 class SimpleProductSerializer(serializers.ModelSerializer):
@@ -47,52 +45,35 @@ class ReviewDetailedSerializer(Reviewserializer):
     product = SimpleProductSerializer()
 
 
+class ReviewDataSerializer(serializers.ModelSerializer):
+    product = serializers.HiddenField(default="")
+
+    class Meta:
+        model = models.Review
+        fields = "__all__"
+
+
 class ProductSerializer(serializers.ModelSerializer):
-    is_fav = serializers.SerializerMethodField(method_name="fav")
-    rate = serializers.SerializerMethodField(method_name="rate_avg")
+    is_fav = serializers.BooleanField(default=False)  # type: ignore
+    avg_rate = serializers.FloatField(default=0)
     brand_name = serializers.CharField(default=None)
 
     class Meta:
         model = models.Product
-        fields = ["name", "image", "price", "brand_name", "is_fav", "rate"]
-
-    def fav(self, obj):
-        Q = self.context["query_set1"]
-        return obj.id in Q
-
-    def rate_avg(self, obj):
-        Q = self.context["query_set2"]
-        if obj.id in Q.keys():
-            return Q.get(obj.id)
-        else:
-            return 0
+        fields = ["name", "image", "price", "brand_name", "is_fav", "avg_rate"]
 
 
-class ProductDetailsSerializer(serializers.ModelSerializer):
-    is_fav = serializers.SerializerMethodField(method_name="fav")
-    rate = serializers.SerializerMethodField(method_name="rate_avg")
-    comment = serializers.SerializerMethodField(method_name="comments")
+class ProductDetailsSerializer(ProductSerializer):
+    reviews = ReviewDataSerializer(many=True, read_only=True, source="review")
 
     class Meta:
         model = models.Product
-        fields = ["name", "image", "price", "brand", "is_fav", "rate", "comment"]
-
-    def to_representation(self, instance):
-        represent = super().to_representation(instance)
-        represent["brand"] = instance.brand.name
-        return represent
-
-    def fav(self, obj):
-        Q = self.context["query_set1"]
-        return obj.id in Q
-
-    def rate_avg(self, obj):
-        Q = self.context["query_set2"]
-        if obj.id in Q.keys():
-            return Q.get(obj.id)
-        else:
-            return 0
-
-    def comments(self, obj):
-        Query = models.Review.objects.select_related("user").filter(product=obj)
-        return Reviewserializer(Query, many=True).data
+        fields = [
+            "name",
+            "image",
+            "price",
+            "brand_name",
+            "is_fav",
+            "avg_rate",
+            "reviews",
+        ]

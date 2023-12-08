@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Max, Min
+from django.db.models import Avg, Exists, F, Max, Min, OuterRef
 
 
 class CustomQuerySet(models.QuerySet):
@@ -10,9 +10,19 @@ class CustomQuerySet(models.QuerySet):
         return self.aggregate(Max("price")).get("price__max")
 
     def annotate_brand(self):
-        from django.db.models import F
-
         return self.annotate(brand_name=F("brand__name"))
+
+    def annotate_is_wishlisted(self, request):
+        from home.models import Wishlist
+
+        return self.annotate(
+            is_fav=Exists(
+                Wishlist.objects.filter(user=request.user, product=OuterRef("id"))
+            )
+        )
+
+    def annotate_rate(self):
+        return self.annotate(avg_rate=Avg("review__rate"))
 
 
 class ProductManager(models.Manager):
