@@ -5,58 +5,34 @@ from django.utils.translation import gettext
 from rest_framework import serializers
 
 from cart import models
+from cart.helpers import CurrentCartDefault
 from home.serializers import SimpleProductSerializer
 from users.models import Address
 from users.serializers import AddressSerializer
 
 
-class CartItemSerializer(serializers.ModelSerializer):
-    product = SimpleProductSerializer(many=False, read_only=True)
-    sub_total = serializers.SerializerMethodField(method_name="total")
-
-    class Meta:
-        model = models.CartItem
-        fields = ["id", "product", "quantity", "sub_total"]
-
-    def total(self, cartitem: models.CartItem):
-        return cartitem.quantity * cartitem.product.price
-
-
 class CartSerializer(serializers.ModelSerializer):
-    items = CartItemSerializer(many=True, read_only=True)
-    total = serializers.SerializerMethodField(method_name="grand_total")
+    total = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Cart
-        fields = ["items", "total"]
+        fields = ("id", "total")
 
-    def grand_total(self, cart: models.Cart):
-        items = cart.items.all()  # type: ignore
-        total = sum(item.quantity * item.product.price for item in items)
-        return total
+    def get_total(self, cart: models.Cart):
+        items = cart.items.select_related("product")
+        return sum(item.quantity * item.product.price for item in items)
 
 
-class AddCartItemSerializer(serializers.ModelSerializer):
-    product_id = serializers.IntegerField(min_value=1)
-    quantity = serializers.IntegerField(min_value=1)
+class CartItemSerializer(serializers.ModelSerializer):
+    cart = serializers.HiddenField(default=CurrentCartDefault())
+    sub_total = serializers.SerializerMethodField()
 
     class Meta:
         model = models.CartItem
-        fields = ["id", "product_id", "quantity"]
+        fields = "__all__"
 
-    def save(self, **kwargs):
-        cart_id = self.context["cart_id"]
-        product_id = self.validated_data["product_id"]  # type: ignore
-        quantity = self.validated_data["quantity"]  # type: ignore
-        self.instance = models.CartItem.objects.filter(product_id=product_id, cart_id=cart_id).first()
-
-        if self.instance is not None:
-            self.instance.quantity = quantity
-            self.instance.save()
-        else:
-            self.instance = models.CartItem.objects.create(cart_id=cart_id, product_id=product_id, quantity=quantity)
-
-        return self.instance
+    def get_sub_total(self, obj):
+        return obj.quantity * obj.product.price
 
 
 class UpdateCartItemSerializer(serializers.ModelSerializer):
@@ -104,15 +80,24 @@ class CreateOrderSerializer(serializers.Serializer):
             if not models.Cart.objects.filter(pk=cart_id).exists():
                 raise serializers.ValidationError("this is invalid cart id")
 
-            elif cart_id != models.Cart.objects.filter(user_id=user_id).values_list("id", flat=True)[0]:
-                raise serializers.ValidationError("you don't have permission for this action")
+            elif (
+                cart_id
+                != models.Cart.objects.filter(user_id=user_id).values_list(
+                    "id", flat=True
+                )[0]
+            ):
+                raise serializers.ValidationError(
+                    "you don't have permission for this action"
+                )
 
             elif not models.CartItem.objects.filter(cart_id=cart_id).exists():
                 raise serializers.ValidationError(gettext("cart_empty"))
 
             cartitems = models.CartItem.objects.filter(cart_id=cart_id)
             total = sum(item.product.price * item.quantity for item in cartitems)
-            order = models.Order.objects.create(owner_id=user_id, total=total, user_address=address)
+            order = models.Order.objects.create(
+                owner_id=user_id, total=total, user_address=address
+            )
             orderitems = [
                 models.OrderItem(
                     order=order,
@@ -127,6 +112,8 @@ class CreateOrderSerializer(serializers.Serializer):
                 Q = models.Product.objects.values_list("id", flat=True)
                 for i in Q:
                     if item.product.id == i:  # type: ignore
-                        models.Product.objects.filter(id=i).update(inventory=F("inventory") - item.quantity)
+                        models.Product.objects.filter(id=i).update(
+                            inventory=F("inventory") - item.quantity
+                        )
             models.CartItem.objects.filter(cart_id=cart_id).delete()
             return order

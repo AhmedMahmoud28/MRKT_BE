@@ -1,50 +1,36 @@
-from rest_framework.mixins import DestroyModelMixin, ListModelMixin, RetrieveModelMixin
+from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from cart import models, permissions, serializers
+from cart import models, serializers
 
 
-class CartViewSet(GenericViewSet, RetrieveModelMixin, DestroyModelMixin, ListModelMixin):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (
-        permissions.ControllingCart,
-        IsAuthenticated,
-    )
+class CartViewSet(GenericViewSet, ListModelMixin):
+    queryset = models.Cart.objects.select_related("user")
     serializer_class = serializers.CartSerializer
     pagination_class = None
 
     def get_queryset(self):
-        return models.Cart.objects.select_related("user").prefetch_related("items", "items__product").filter(user_id=self.request.user.id)  # type: ignore
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
-    def perform_destroy(self, instance):
-        models.CartItem.objects.filter(cart=instance).delete()
+        return self.queryset.filter(user=self.request.user)
 
 
 class CartItemViewSet(ModelViewSet):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (permissions.ControllingCartItem, IsAuthenticated)
+    serializer_class = serializers.CartItemSerializer
+    queryset = models.CartItem.objects.select_related("cart", "product")
     pagination_class = None
 
     def get_queryset(self):
-        return models.CartItem.objects.select_related("product").filter(cart_id=self.kwargs["cart_pk"])
-
-    def get_serializer_context(self):
-        context = {"cart_id": self.request.user.cart.id}  # type: ignore
-        return context
+        user = self.request.user
+        if user.is_authenticated:
+            return self.queryset.filter(cart=user.cart)
+        return super().get_queryset()
 
     def get_serializer_class(self):
-        if self.request.method == "POST" or self.request.method == "PUT":
-            return serializers.AddCartItemSerializer
-        elif self.request.method == "PATCH":
+        if self.action == "update":
             return serializers.UpdateCartItemSerializer
-
-        return serializers.CartItemSerializer
+        return super().get_serializer_class()
 
 
 class OrderViewSet(ModelViewSet):
@@ -73,5 +59,9 @@ class OrderViewSet(ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:  # type: ignore
-            return models.Order.objects.prefetch_related("items", "items__product").all()
-        return models.Order.objects.prefetch_related("items", "items__product").filter(owner=user)
+            return models.Order.objects.prefetch_related(
+                "items", "items__product"
+            ).all()
+        return models.Order.objects.prefetch_related("items", "items__product").filter(
+            owner=user
+        )

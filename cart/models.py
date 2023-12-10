@@ -1,7 +1,9 @@
 import uuid
 
 from django.db import models
+from django_lifecycle import LifecycleModel
 
+from cart.model_mixins import CartItemMixin
 from home.models import Product
 from users.models import Address, User
 
@@ -17,9 +19,11 @@ class Cart(models.Model):
         return f"{self.id} {self.user.name}"
 
 
-class CartItem(models.Model):
+class CartItem(LifecycleModel, CartItemMixin):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="cartitems")
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="cartitems"
+    )
     quantity = models.PositiveIntegerField(default=1)
 
     def __str__(self):
@@ -37,7 +41,9 @@ class Order(models.Model):
         (PAYMENT_STATUS_FAILED, "Failed"),
     ]
     date = models.DateTimeField(auto_now_add=True)
-    pending_status = models.CharField(max_length=50, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING)
+    pending_status = models.CharField(
+        max_length=50, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING
+    )
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     total = models.PositiveIntegerField(default=0)
     user_address = models.ForeignKey(Address, on_delete=models.PROTECT, default=None)
