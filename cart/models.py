@@ -13,7 +13,7 @@ from users.models import Address, User
 
 class Cart(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, default=None)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
