@@ -3,6 +3,7 @@ import uuid
 from django.db import models
 from django_lifecycle import LifecycleModel
 
+from cart.conf import PAYMENT_STATUS_CHOICES, PAYMENT_STATUS_PENDING
 from cart.model_mixins import CartItemMixin
 from home.models import Product
 from users.models import Address, User
@@ -31,25 +32,16 @@ class CartItem(LifecycleModel, CartItemMixin):
 
 
 class Order(models.Model):
-    PAYMENT_STATUS_PENDING = "P"
-    PAYMENT_STATUS_COMPLETE = "C"
-    PAYMENT_STATUS_FAILED = "F"
-
-    PAYMENT_STATUS_CHOICES = [
-        (PAYMENT_STATUS_PENDING, "Pending"),
-        (PAYMENT_STATUS_COMPLETE, "Complete"),
-        (PAYMENT_STATUS_FAILED, "Failed"),
-    ]
-    date = models.DateTimeField(auto_now_add=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_address = models.ForeignKey(Address, on_delete=models.PROTECT)
     pending_status = models.CharField(
         max_length=50, choices=PAYMENT_STATUS_CHOICES, default=PAYMENT_STATUS_PENDING
     )
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     total = models.PositiveIntegerField(default=0)
-    user_address = models.ForeignKey(Address, on_delete=models.PROTECT, default=None)
+    date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.pending_status
+        return self.owner, self.pending_status
 
 
 class OrderItem(models.Model):
