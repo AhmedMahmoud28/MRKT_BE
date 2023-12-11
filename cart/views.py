@@ -34,8 +34,8 @@ class CartItemViewSet(ModelViewSet):
 
 
 class OrderViewSet(ModelViewSet):
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    queryset = models.Order.objects.prefetch_related("items", "items__product")
+    serializer_class = serializers.OrderSerializer
     pagination_class = None
 
     def create(self, request, *args, **kwargs):
@@ -52,16 +52,14 @@ class OrderViewSet(ModelViewSet):
         return Response(serializer.data)
 
     def get_serializer_class(self):
-        if self.request.method == "POST":
+        if self.action == "create":
             return serializers.CreateOrderSerializer
-        return serializers.OrderSerializer
+        return super().get_serializer_class()
 
     def get_queryset(self):
         user = self.request.user
-        if user.is_staff:  # type: ignore
-            return models.Order.objects.prefetch_related(
-                "items", "items__product"
-            ).all()
-        return models.Order.objects.prefetch_related("items", "items__product").filter(
-            owner=user
-        )
+        if user.is_staff:
+            return self.queryset
+        if user.is_authenticated:
+            return self.queryset.filter(owner=user)
+        return super().get_queryset()
