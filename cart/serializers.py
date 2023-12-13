@@ -1,6 +1,3 @@
-from django.db import transaction
-from django.db.models import F
-from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext
 from rest_framework import serializers
 
@@ -8,8 +5,6 @@ from cart import models
 from cart.conf import PAYMENT_STATUS_PENDING
 from cart.helpers import CurrentAddressDefault, CurrentCartDefault
 from home.serializers import SimpleProductSerializer
-from users.models import Address
-from users.serializers import AddressSerializer
 
 
 class CartSerializer(serializers.ModelSerializer):

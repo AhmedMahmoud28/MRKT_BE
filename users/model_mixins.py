@@ -8,11 +8,16 @@ class AddressMixin:
         from .models import Address
 
         user_id = self.user.id  # type: ignore
-        current = Address.objects.select_related("user").get(user_id=user_id, address_status=True)  # type: ignore
-        if self != current:
-            current.address_status = False
-            self.address_status = True
-            current.save()
+        if (
+            Address.objects.select_related("user")
+            .filter(user_id=user_id, address_status=True)
+            .exists()
+        ):
+            current = Address.objects.select_related("user").get(user_id=user_id, address_status=True)  # type: ignore
+            if self != current:
+                current.address_status = False
+                self.address_status = True
+                current.save()
 
 
 class UserMixin:

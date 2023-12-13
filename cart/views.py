@@ -42,24 +42,6 @@ class OrderViewSet(ModelViewSet):
     serializer_class = serializers.OrderSerializer
     pagination_class = None
 
-    # def create(self, request, *args, **kwargs):
-    #     serializer = serializers.CreateOrderSerializer(
-    #         data=request.data,
-    #         context={
-    #             "user_id": self.request.user.id,  # type: ignore
-    #             "cart_id": self.request.user.cart.id,  # type: ignore
-    #         },
-    #     )  # type: ignore
-    #     serializer.is_valid(raise_exception=True)
-    #     order = serializer.save()
-    #     serializer = serializers.OrderSerializer(order)
-    #     return Response(serializer.data)
-
-    # def get_serializer_class(self):
-    #     if self.action == "create":
-    #         return serializers.CreateOrderSerializer
-    #     return super().get_serializer_class()
-
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
