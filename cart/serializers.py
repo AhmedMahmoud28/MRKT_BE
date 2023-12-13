@@ -5,22 +5,19 @@ from django.utils.translation import gettext
 from rest_framework import serializers
 
 from cart import models
-from cart.helpers import CurrentCartDefault
+from cart.conf import PAYMENT_STATUS_PENDING
+from cart.helpers import CurrentAddressDefault, CurrentCartDefault
 from home.serializers import SimpleProductSerializer
 from users.models import Address
 from users.serializers import AddressSerializer
 
 
 class CartSerializer(serializers.ModelSerializer):
-    total = serializers.SerializerMethodField()
+    total = serializers.IntegerField(default=0)
 
     class Meta:
         model = models.Cart
         fields = ("id", "total")
-
-    def get_total(self, cart: models.Cart):
-        items = cart.items.select_related("product")
-        return sum(item.quantity * item.product.price for item in items)
 
 
 class CartItemSerializer(serializers.ModelSerializer):
@@ -54,66 +51,18 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True, read_only=True)
-    user_address = AddressSerializer()
+    owner = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    pending_status = serializers.HiddenField(default=PAYMENT_STATUS_PENDING)
+    user_address = serializers.HiddenField(default=CurrentAddressDefault())
+    total = serializers.HiddenField(default=0)
 
     class Meta:
         model = models.Order
-        fields = [
-            "id",
-            "date",
-            "pending_status",
-            "owner",
-            "items",
-            "total",
-            "user_address",
-        ]
+        fields = "__all__"
 
-
-class CreateOrderSerializer(serializers.Serializer):
-    def create(self, validated_data):
-        with transaction.atomic():
-            cart_id = self.context["cart_id"]
-            user_id = self.context["user_id"]
-            address = get_object_or_404(Address, user_id=user_id, address_status=True)
-
-            if not models.Cart.objects.filter(pk=cart_id).exists():
-                raise serializers.ValidationError("this is invalid cart id")
-
-            elif (
-                cart_id
-                != models.Cart.objects.filter(user_id=user_id).values_list(
-                    "id", flat=True
-                )[0]
-            ):
-                raise serializers.ValidationError(
-                    "you don't have permission for this action"
-                )
-
-            elif not models.CartItem.objects.filter(cart_id=cart_id).exists():
-                raise serializers.ValidationError(gettext("cart_empty"))
-
-            cartitems = models.CartItem.objects.filter(cart_id=cart_id)
-            total = sum(item.product.price * item.quantity for item in cartitems)
-            order = models.Order.objects.create(
-                owner_id=user_id, total=total, user_address=address
-            )
-            orderitems = [
-                models.OrderItem(
-                    order=order,
-                    product=item.product,
-                    quantity=item.quantity,
-                    unit_price=item.product.price,
-                )
-                for item in cartitems
-            ]
-            models.OrderItem.objects.bulk_create(orderitems)
-            for item in orderitems:
-                Q = models.Product.objects.values_list("id", flat=True)
-                for i in Q:
-                    if item.product.id == i:  # type: ignore
-                        models.Product.objects.filter(id=i).update(
-                            inventory=F("inventory") - item.quantity
-                        )
-            models.CartItem.objects.filter(cart_id=cart_id).delete()
-            return order
+    def validate(self, attrs):
+        if not models.CartItem.objects.filter(
+            cart=self.context["request"].user.cart
+        ).exists():
+            raise serializers.ValidationError(gettext("cart_empty"))
+        return super().validate(attrs)

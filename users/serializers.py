@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 
 from users import models
@@ -24,6 +25,9 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "password": {"write_only": True, "style": {"input_type": "password"}}
         }
+
+    def validate_password(self, value: str):
+        return make_password(value)
 
     def update(self, instance, validated_data):
         """Handle updating user account"""

@@ -4,7 +4,8 @@ from django.db import models
 from django_lifecycle import LifecycleModel
 
 from cart.conf import PAYMENT_STATUS_CHOICES, PAYMENT_STATUS_PENDING
-from cart.model_mixins import CartItemMixin
+from cart.managers import CartQuerySet
+from cart.model_mixins import CartItemMixin, OrderMixin
 from home.models import Product
 from users.models import Address, User
 
@@ -15,6 +16,8 @@ class Cart(models.Model):
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
+
+    objects = CartQuerySet.as_manager()
 
     def __str__(self):
         return f"{self.id} {self.user.name}"
@@ -31,7 +34,7 @@ class CartItem(LifecycleModel, CartItemMixin):
         return f"{self.cart} {self.product} {self.quantity}"
 
 
-class Order(models.Model):
+class Order(LifecycleModel, OrderMixin):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     user_address = models.ForeignKey(Address, on_delete=models.PROTECT)
     pending_status = models.CharField(
@@ -41,7 +44,7 @@ class Order(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.owner, self.pending_status
+        return f"{self.owner} {self.pending_status}"
 
 
 class OrderItem(models.Model):

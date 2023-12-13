@@ -1,3 +1,4 @@
+from django.db.models import F, Sum
 from rest_framework.mixins import ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -13,7 +14,10 @@ class CartViewSet(GenericViewSet, ListModelMixin):
     pagination_class = None
 
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user)
+        user = self.request.user
+        if user.is_authenticated:
+            return self.queryset.filter(user=self.request.user).annotate_total()
+        return super().get_queryset()
 
 
 class CartItemViewSet(ModelViewSet):
@@ -38,28 +42,28 @@ class OrderViewSet(ModelViewSet):
     serializer_class = serializers.OrderSerializer
     pagination_class = None
 
-    def create(self, request, *args, **kwargs):
-        serializer = serializers.CreateOrderSerializer(
-            data=request.data,
-            context={
-                "user_id": self.request.user.id,  # type: ignore
-                "cart_id": self.request.user.cart.id,  # type: ignore
-            },
-        )  # type: ignore
-        serializer.is_valid(raise_exception=True)
-        order = serializer.save()
-        serializer = serializers.OrderSerializer(order)
-        return Response(serializer.data)
+    # def create(self, request, *args, **kwargs):
+    #     serializer = serializers.CreateOrderSerializer(
+    #         data=request.data,
+    #         context={
+    #             "user_id": self.request.user.id,  # type: ignore
+    #             "cart_id": self.request.user.cart.id,  # type: ignore
+    #         },
+    #     )  # type: ignore
+    #     serializer.is_valid(raise_exception=True)
+    #     order = serializer.save()
+    #     serializer = serializers.OrderSerializer(order)
+    #     return Response(serializer.data)
 
-    def get_serializer_class(self):
-        if self.action == "create":
-            return serializers.CreateOrderSerializer
-        return super().get_serializer_class()
+    # def get_serializer_class(self):
+    #     if self.action == "create":
+    #         return serializers.CreateOrderSerializer
+    #     return super().get_serializer_class()
 
     def get_queryset(self):
         user = self.request.user
         if user.is_staff:
-            return self.queryset
+            return self.queryset.all()
         if user.is_authenticated:
-            return self.queryset.filter(owner=user)
+            return self.queryset.all().filter(owner=user)
         return super().get_queryset()
