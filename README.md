@@ -10,22 +10,28 @@ Creating Similar API Endpoints for MRKT App on PlayStore
 
 ## First Time install locally
 
-```virtualenv -p python3  envsource env/bin/activate
-pip install -r requirements/local.txt```
+```bash
+virtualenv -p python3  envsource env/bin/activate
+pip install -r requirements/local.txt
+```
 
 Create .env file and provide secret key for the project and database configuration
 
 ### Generate secret key
 
-```py manage.py shell
+```bash
+py manage.py shell
 from django.core.management.utils import get_random_secret_key
-print(get_random_secret_key())```
+print(get_random_secret_key())
+```
 
 copy the key and place it in .env file
 
-```python manage.py migrate
+```bash
+python manage.py migrate
 python manage.py runserver
-python manage.py createsuperuser --email admin@example.com --username admin```
+python manage.py createsuperuser --email admin@example.com --username admin3
+```
 
 # Usage
 
